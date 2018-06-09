@@ -7,4 +7,4 @@ const install = (Vue) => {
 
 install(Vue);
 
-export default { multiCascader, install };
+export default multiCascader;
