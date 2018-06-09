@@ -7,4 +7,4 @@ const install = (Vue) => {
 if (typeof window !== 'undefined' && window.Vue) {
     install(window.Vue);
 }
-export { multiCascader, install };
+export default multiCascader;
