@@ -1,17 +1,25 @@
-<template lang='html'>
+<template lang="html">
     <div class="popver-content">
-        <div class="vk-multil-content">
+        <div class="vk-multil-content" :style="contentStyle">
             <ul class="vk-multi-menu">
                 <li class="vk-menu-item" v-for="(item, index) of option"
                     :key="index"
                     @click="showNextLevel(item)">
-                        <el-checkbox v-model="item.checked" @change="checkChange(item)">{{ item.label }}</el-checkbox>
-                        <i class="el-icon-arrow-right" v-show="item.children && item.children.length > 0"></i>
+                    <el-checkbox v-model="item.checked" @change="checkChange(item)">{{ item.label }}</el-checkbox>
+                    <i class="el-icon-arrow-right" v-show="item.children && item.children.length > 0"></i>
                 </li>
             </ul>
         </div>
         <!-- 递归调用自身组件 -->
-        <muContent @handleSelect="whenSelected" v-if="activeItem && activeItem.children"  :selectedValues="selectedValues"  @handleOutPut="whenOutPut"  :option="activeItem.children" ></muContent>
+        <muContent
+            @handleSelect="whenSelected"
+            :height="height"
+            :width="width"
+            v-if="(activeItem && activeItem.children) && (activeItem.children.length > 0)"
+            :selectedValues="selectedValues"
+            @handleOutPut="whenOutPut"
+            :option="activeItem.children" >
+        </muContent>
     </div>
 </template>
 
@@ -30,23 +38,41 @@ export default {
             default() {
                 return [];
             }
+        },
+        width: {
+            type: String,
+            default: ""
+        },
+        height: {
+            type: String,
+            default: ""
         }
     },
     data() {
         return {
             activeItem: "",
-            tempActiveItem: ""
+            tempActiveItem: "",
+            contentStyle: {
+                width: "",
+                height: ""
+            }
         };
     },
     created() {
+        this.initData();
     },
     methods: {
         // 逐级上传
         whenOutPut(val) {
             this.$emit("handleOutPut", val);
         },
+        initData() {
+            const { width, height } = this;
+            this.contentStyle = Object.assign(this.contentStyle, { width, height });
+        },
         // 获取到选中的值
         checkChange(item) {
+            const that = this;
             if (!item.children || item.children.length === 0) {
                 if (this.selectedValues.includes(item.value)) {
                     const index = this.selectedValues.indexOf(item.value);
@@ -58,10 +84,11 @@ export default {
             const setChecked = toCheckItem => {
                 toCheckItem.checked = item.checked;
                 const { value, checked } = toCheckItem;
+                const getValIndex = this.selectedValues.findIndex(val => val === value);
                 if (checked) {
                     this.selectedValues.push(value);
-                } else {
-                    this.selectedValues.splice(this.selectedValues.findIndex(val => val === value), 1);
+                } else if (getValIndex >= 0) {
+                    this.selectedValues.splice(getValIndex, 1);
                 }
                 const itemChild = toCheckItem.children;
                 if (itemChild && itemChild.length > 0) {
@@ -74,12 +101,7 @@ export default {
             if (item.children) {
                 item.children.forEach(child => setChecked(child));
             }
-            // 这里没有想到好的方法
-            // 这里因为 vue.js 不能检测到更深
-            this.activeItem = "";
-            setTimeout(() => {
-                this.activeItem = item;
-            }, 10);
+            this.activeItem = item;
             this.$emit("handleSelect", this.option);
             this.$emit("handleOutPut", this.selectedValues);
         },
@@ -101,6 +123,10 @@ export default {
 };
 </script>
 <style lang='less' scoped>
+.popver-content {
+    display: flex;
+    justify-content: space-between;
+}
 .vk-multil-content {
     width: 220px;
     height: 240px;

@@ -1,8 +1,8 @@
 <template lang='html'>
     <div class='vk-multil-cascader'>
-        <el-popover placement="top-start"  style="padding: 0px" popper-class="popper-class" :visible-arrow="showArrow" trigger="click" content="fsdafdsafdsaf">
-            <muContent :option="options" @handleOutPut="whenOutPut"></muContent>
-            <el-input popper-class="slect-panel" v-if="activeItem[0] && activeItem[0].level === 0"  v-model="outputValue.length" readonly slot="reference"></el-input>
+        <el-popover placement="top-start" popper-class="vk-multi-cascader-popover" :visible-arrow="showArrow" trigger="click">
+            <muContent :height="height" :width="width" :option="options" @handleOutPut="whenOutPut"></muContent>
+            <el-input popper-class="slect-panel" v-if="activeItem[0] && activeItem[0].level === 0"  v-model="inputValue" readonly slot="reference"></el-input>
         </el-popover>
     </div>
 </template>
@@ -17,6 +17,20 @@ export default {
             default() {
                 return [];
             }
+        },
+        width: {
+            type: String,
+            default: ""
+        },
+        height: {
+            type: String,
+            default: ""
+        },
+        inputValue: {
+            type: String,
+            default() {
+                return "";
+            }
         }
     },
     data() {
@@ -24,8 +38,9 @@ export default {
             showArrow: true,
             activeItem: [],
             outputValue: [],
-            // label value 字典
-            optionDicts: []
+            optionDicts: [],
+            popoverStyle: {
+            }
         };
     },
     components: {
@@ -40,10 +55,11 @@ export default {
     methods: {
         initData() {
             this.activeItem = this.options;
+            const { width, height } = this;
+            this.popoverStyle = Object.assign({}, { width, height });
         },
         // 设置配置的字典
         setOptionDicts(options) {
-            console.log("options", options);
             if (!Array.isArray(options)) {
                 const { label, value } = options;
                 this.optionDicts.push({ value, label });
@@ -88,17 +104,6 @@ export default {
 };
 </script>
 <style lang='less' scoped>
-.popper-class {
-    padding: 0px !important;
-    overflow-y: scroll;
-}
-.vk-multil-content {
-    height: 204px;
-}
-.popver-content {
-    display: flex;
-    justify-content: space-between;
-}
 .vk-menu-item {
     display: flex;
     justify-content: space-between;
