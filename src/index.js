@@ -1,8 +1,8 @@
 import multiCascader from "./components";
-import Vue from "vue";
 
+console.log("multinamn", multiCascader.name);
 const install = (Vue) => {
-    Vue.component(multiCascader.name, multiCascader)
+    Vue.component("multiCascader", multiCascader)
 };
 if (typeof window !== 'undefined' && window.Vue) {
     install(window.Vue);
