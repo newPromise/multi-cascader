@@ -5,6 +5,4 @@ const install = (Vue) => {
     Vue.component(multiCascader.name, multiCascader)
 };
 
-install(Vue);
-
-export default multiCascader;
+export { multiCascader, install };
