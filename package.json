@@ -1,6 +1,6 @@
 {
   "name": "multi-cascader",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "基于 element-ui 的多选层级选择器",
   "author": "znn <250621458@qq.com>",
   "private": false,
