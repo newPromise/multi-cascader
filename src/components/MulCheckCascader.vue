@@ -121,5 +121,5 @@ export default {
         background-color: rgba(125,139,169,.1);
     }
 }
-@import "~assets/css/variable";
+// @import "~assets/css/variable";
 </style>
