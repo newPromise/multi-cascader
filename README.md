@@ -21,9 +21,10 @@ Vue.use(multiCascader);
 | 参数           | 说明                                       | 类型     | 可选值  | 默认值  |
 | ------------ | ---------------------------------------- | ------ | ---- | ---- |
 | `options`    | 可选项数据源， 每一项的配置如下：```{ value: "选项的 value", label: "选项的名字"， checked: 可选值： true / false, 表示当前选项是否被选中， children: 表示当前选项的下一级 }``` | array  | --   | []   |
-| `width`      | 层级选择器弹窗的宽度                               | String | --   | ""   |
-| `height`     | 层级选择器弹窗的高度                               | String | --   | ""   |
+| `width`      | 层级选择器内容的宽度                               | String | --   | ""   |
+| `height`     | 层级选择器内容的高度                               | String | --   | ""   |
 | `inputValue` | 显示在层级选择器组件中input 中的值                     | String | --   | ""   |
+|``||||
 
 ##  Events
 

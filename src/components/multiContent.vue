@@ -2,10 +2,11 @@
     <div class="popver-content">
         <div class="vk-multil-content" :style="contentStyle">
             <ul class="vk-multi-menu">
-                <li class="vk-menu-item" v-for="(item, index) of option"
+                <li v-for="(item, index) of option"
                     :key="index"
+                    :class="[ 'vk-menu-item', { 'item-disabled': item.disabled }]"
                     @click="showNextLevel(item)">
-                    <el-checkbox v-model="item.checked" @change="checkChange(item)">{{ item.label }}</el-checkbox>
+                    <el-checkbox :disabled="item.disabled" v-model="item.checked" @change="checkChange(item)">{{ item.label }}</el-checkbox>
                     <i class="el-icon-arrow-right" v-show="item.children && item.children.length > 0"></i>
                 </li>
             </ul>
@@ -18,6 +19,8 @@
             v-if="(activeItem && activeItem.children) && (activeItem.children.length > 0)"
             :selectedValues="selectedValues"
             @handleOutPut="whenOutPut"
+            :outputType="outputType"
+            :disabledPair="disabledPair"
             :option="activeItem.children" >
         </muContent>
     </div>
@@ -33,6 +36,7 @@ export default {
                 return [];
             }
         },
+        // 被选中的值
         selectedValues: {
             type: Array,
             default() {
@@ -46,6 +50,18 @@ export default {
         height: {
             type: String,
             default: ""
+        },
+        // 禁用字段
+        disabledPair: {
+            type: Object,
+            default() {
+                return {};
+            }
+        },
+        // 输出的值的类型， 这些字段是定义在 item 上面的
+        outputType: {
+            type: String,
+            default: "value"
         }
     },
     data() {
@@ -60,6 +76,7 @@ export default {
     },
     created() {
         this.initData();
+        this.whenOutPut(this.selectedValues);
     },
     methods: {
         // 逐级上传
@@ -72,21 +89,22 @@ export default {
         },
         // 获取到选中的值
         checkChange(item) {
+            this.disabeldAction(item);
             const that = this;
             if (!item.children || item.children.length === 0) {
-                if (this.selectedValues.includes(item.value)) {
-                    const index = this.selectedValues.indexOf(item.value);
+                if (this.selectedValues.includes(item[this.outputType])) {
+                    const index = this.selectedValues.indexOf(item[this.outputType]);
                     this.selectedValues.splice(index, 1);
                 } else {
-                    this.selectedValues.push(item.value);
+                    this.selectedValues.push(item[this.outputType]);
                 }
             }
             const setChecked = toCheckItem => {
                 toCheckItem.checked = item.checked;
                 const { value, checked } = toCheckItem;
-                const getValIndex = this.selectedValues.findIndex(val => val === value);
+                const getValIndex = this.selectedValues.findIndex(val => val === toCheckItem[this.outputType]);
                 if (checked) {
-                    this.selectedValues.push(value);
+                    this.selectedValues.push(toCheckItem[this.outputType]);
                 } else if (getValIndex >= 0) {
                     this.selectedValues.splice(getValIndex, 1);
                 }
@@ -105,6 +123,7 @@ export default {
             this.$emit("handleSelect", this.option);
             this.$emit("handleOutPut", this.selectedValues);
         },
+        // 当二级菜单改变的时候
         whenSelected(val) {
             let hasCheckTrue = true;
             if (Array.isArray(val) && val.length > 0) {
@@ -115,8 +134,54 @@ export default {
             } else {
                 this.activeItem.checked = true;
             }
+            this.disabeldAction(this.activeItem);
+        },
+        // 设置 disabled 值 values: 互斥的另一方数组， curItem 当前选中的值
+        setDisabled(values, curItem, exceptValues) {
+            const toDisabled = (item) => {
+                const { value } = item;
+                const curValue = curItem.value;
+                const curChecked = curItem.checked;
+                const childrenValues = curItem.childrenValues;
+                if (values.includes(value) || (values.includes("all") && !exceptValues.includes(value))) {
+                    item.disabled = !!curChecked;
+                } else {
+                    item.disabled = false;
+                }
+                if (childrenValues && childrenValues.includes(item.value)) {
+                    item.disabled = false;
+                }
+                const itemChild = item.children;
+                if (itemChild && itemChild.length > 0) {
+                    itemChild.forEach(child => {
+                        toDisabled(child);
+                    });
+                }
+            };
+            this.option.forEach(child => {
+                toDisabled(child);
+            });
+        },
+        // disabled action
+        // 根据选中的值进行设置是否可选
+        disabeldAction(item) {
+            const { thatPair, thisPair } = this.disabledPair;
+            if (!thatPair || !thisPair) {
+                return;
+            }
+            const pairs = [...thatPair, ...thisPair];
+            if (pairs.includes(item.value) || pairs.includes("all")) {
+                if (thisPair.includes(item.value) || (thisPair.includes("all") && !thatPair.includes(item.value))) {
+                    this.setDisabled(thatPair, item, thisPair);
+                    return;
+                }
+                if (thatPair.includes(item.value) || (thatPair.includes("all") && !thisPair.includes(item.value))) {
+                    this.setDisabled(thisPair, item, thatPair);
+                }
+            }
         },
         showNextLevel(item) {
+            if (item.disabled) return;
             this.activeItem = item;
         }
     }
@@ -149,5 +214,9 @@ export default {
     &:hover {
         background-color: rgba(125,139,169,.1);
     }
+}
+.item-disabled {
+    color: #c0c4cc;
+    cursor: not-allowed;
 }
 </style>

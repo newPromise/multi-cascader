@@ -1,14 +1,24 @@
 <template lang='html'>
     <div class='vk-multil-cascader'>
-        <el-popover placement="top-start" popper-class="vk-multi-cascader-popover" :visible-arrow="showArrow" trigger="click">
-            <muContent :height="height" :width="width" :option="options" @handleOutPut="whenOutPut"></muContent>
-            <el-input popper-class="slect-panel" v-if="activeItem[0] && activeItem[0].level === 0"  v-model="inputValue" readonly slot="reference"></el-input>
+        <el-popover placement="top-start" popper-class="vk-multi-cascader-popover" :visible-arrow="showArrow" trigger="click" @hide="whenPopoverHide" @show="whenPopoverShow">
+            <muContent
+                :height="height"
+                :width="width"
+                :option="options"
+                @handleOutPut="whenOutPut"
+                :selectedValues="selectedValues"
+                :outputType="outputType"
+                :disabledPair="disabledPair">
+            </muContent>
+            <el-input popper-class="slect-panel" v-if="activeItem[0] && activeItem[0].level === 0"  v-model="inputValue" readonly slot="reference" :suffix-icon="inputArrow">
+            </el-input>
         </el-popover>
     </div>
 </template>
 
 <script>
 import muContent from "./multiContent";
+// 基于 vue.js && element-ui 的多选级联选择器
 export default {
     name: "multiCascader",
     props: {
@@ -31,32 +41,80 @@ export default {
             default() {
                 return "";
             }
+        },
+        // 输出值的类型
+        outputType: {
+            type: String,
+            default() {
+                return "value";
+            }
+        },
+        disabledPair: {
+            type: Object,
+            default() {
+                return {};
+            }
         }
     },
     data() {
         return {
+            selectedValues: [],
             showArrow: true,
             activeItem: [],
             outputValue: [],
             optionDicts: [],
             popoverStyle: {
-            }
+            },
+            inputArrow: "el-icon-arrow-down",
+            popoverWidth: ""
         };
+    },
+    watch: {
+        "options": function () {
+            this.initData();
+            this.setLevel();
+        }
     },
     components: {
         muContent
     },
-    computed: {},
     created() {
-        this.initData();
         this.setLevel();
+        this.initData();
         this.setOptionDicts(this.options);
     },
     methods: {
+        whenPopoverHide() {
+            this.inputArrow = "el-icon-arrow-down";
+        },
+        whenPopoverShow() {
+            this.inputArrow = "el-icon-arrow-up";
+        },
         initData() {
             this.activeItem = this.options;
             const { width, height } = this;
             this.popoverStyle = Object.assign({}, { width, height });
+            const checkedValues = [];
+            let childrenValues = [];
+            const getChecked = (item) => {
+                const { checked, value, children, level } = item;
+                childrenValues.push(value);
+                if (children && children.length > 0) {
+                    children.forEach(child => {
+                        getChecked(child);
+                    });
+                } else {
+                    if (checked) checkedValues.push(item[this.outputType]);
+                }
+            };
+            this.options.forEach(child => {
+                getChecked(child);
+                // 设置当前item 的 childrenValues, 包含当前item 下的所有值的 value
+                child.childrenValues = [...childrenValues];
+                childrenValues = [];
+            });
+            this.selectedValues = checkedValues;
+            this.whenOutPut(this.selectedValues);
         },
         // 设置配置的字典
         setOptionDicts(options) {
@@ -121,5 +179,5 @@ export default {
         background-color: rgba(125,139,169,.1);
     }
 }
-// @import "~assets/css/variable";
+@import "~assets/css/variable";
 </style>
