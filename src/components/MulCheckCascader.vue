@@ -72,14 +72,12 @@ export default {
     watch: {
         "options": function () {
             this.initData();
-            this.setLevel();
         }
     },
     components: {
         muContent
     },
     created() {
-        this.setLevel();
         this.initData();
         this.setOptionDicts(this.options);
     },
@@ -91,13 +89,18 @@ export default {
             this.inputArrow = "el-icon-arrow-up";
         },
         initData() {
+            this.setLevel();
             this.activeItem = this.options;
             const { width, height } = this;
             this.popoverStyle = Object.assign({}, { width, height });
             const checkedValues = [];
             let childrenValues = [];
             const getChecked = (item) => {
-                const { checked, value, children, level } = item;
+                const { checked, value, children, level, siblingValues } = item;
+                if (siblingValues) {
+                    const tempValues = [...siblingValues];
+                    item.siblingValues = tempValues;
+                }
                 childrenValues.push(value);
                 if (children && children.length > 0) {
                     children.forEach(child => {
@@ -137,9 +140,14 @@ export default {
         },
         // 设定层级
         setLevel() {
+            const siblingValues = [];
+            let tempLevel = 0;
             if (this.options.length) {
                 const addLevel = option => {
                     const optChild = option.children;
+                    if (option.level === tempLevel) {
+                        siblingValues.push(option.value);
+                    }
                     if (optChild) {
                         optChild.forEach(opt => {
                             opt.level = option.level + 1;
@@ -150,8 +158,10 @@ export default {
                 this.options.forEach(option => {
                     if (!option.level) {
                         option.level = 0;
+                        tempLevel = option.level;
                     }
                     addLevel(option);
+                    option.siblingValues = siblingValues;
                 });
             }
         },
