@@ -144,7 +144,7 @@ export default {
         // values 互斥的另一部分数组， excepValues 表示当前所属的数组
         setDisabled(exceptValues, curItem, values) {
             const { checked: curChecked, childrenValues, value: curValue, siblingValues } = curItem;
-            this.checkArr = "";
+            this.checkArr = [];
             if (values.includes("all")) {
                 if (siblingValues) {
                     this.checkArr = new Array(siblingValues.length - exceptValues.length).fill(true);
@@ -154,21 +154,10 @@ export default {
             }
             const toDisabled = (item) => {
                 const { value, checked } = item;
-                if (values.includes("all") && !exceptValues.includes(value)) {
+                if (values.includes(value) || (values.includes("all") && !exceptValues.includes(value))) {
                     if (siblingValues && siblingValues.includes(value)) {
                         this.checkArr.push(checked);
                         this.checkArr.shift();
-                    }
-                }
-                if (values.includes(value)) {
-                    if (siblingValues && siblingValues.includes(value)) {
-                        this.checkArr.push(checked);
-                        this.checkArr.shift();
-                    }
-                }
-                if (exceptValues.includes("all")) {
-                    if (!values.includes(value) && !childrenValues.includes(value)) {
-                        item.disabled = !!curChecked;
                     }
                 }
                 const itemChild = item.children;
@@ -182,7 +171,7 @@ export default {
                 toDisabled(child);
             });
             this.option.forEach(child => {
-                if (exceptValues.includes(child.value)) {
+                if (exceptValues.includes(child.value) || (exceptValues.includes("all") && !values.includes(child.value))) {
                     child.disabled = this.checkArr.some(val => val === true);
                 }
             });
@@ -222,6 +211,7 @@ export default {
     height: 240px;
     display: inline-block;
     overflow: auto;
+    border-right: 1px solid #e4e7ed;
 }
 .vk-menu-item {
     display: flex;
