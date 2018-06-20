@@ -19,7 +19,6 @@
             v-if="(activeItem && activeItem.children) && (activeItem.children.length > 0)"
             :selectedValues="selectedValues"
             @handleOutPut="whenOutPut"
-            :outputType="outputType"
             :disabledPair="disabledPair"
             :option="activeItem.children" >
         </muContent>
@@ -59,11 +58,6 @@ export default {
             default() {
                 return {};
             }
-        },
-        // 输出的值的类型， 这些字段是定义在 item 上面的
-        outputType: {
-            type: String,
-            default: "value"
         }
     },
     data() {
@@ -94,34 +88,35 @@ export default {
         // 获取到选中的值
         checkChange(item) {
             this.disabeldAction(item);
+            const itemChecked = item.checked;
             const that = this;
             if (!item.children || item.children.length === 0) {
-                if (this.selectedValues.includes(item[this.outputType])) {
-                    const index = this.selectedValues.indexOf(item[this.outputType]);
+                if (this.selectedValues.includes(item.value)) {
+                    const index = this.selectedValues.indexOf(item.value);
                     this.selectedValues.splice(index, 1);
                 } else {
-                    this.selectedValues.push(item[this.outputType]);
+                    this.selectedValues.push(item.value);
                 }
             }
-            const setChecked = toCheckItem => {
-                toCheckItem.checked = item.checked;
+            const setChecked = (toCheckItem, itemCheck) => {
+                toCheckItem.checked = itemCheck;
                 const { value, checked } = toCheckItem;
-                const getValIndex = this.selectedValues.findIndex(val => val === toCheckItem[this.outputType]);
+                const getValIndex = this.selectedValues.findIndex(val => val === toCheckItem.value);
                 if (checked) {
-                    this.selectedValues.push(toCheckItem[this.outputType]);
+                    this.selectedValues.push(toCheckItem.value);
                 } else if (getValIndex >= 0) {
                     this.selectedValues.splice(getValIndex, 1);
                 }
                 const itemChild = toCheckItem.children;
                 if (itemChild && itemChild.length > 0) {
                     itemChild.forEach(child => {
-                        setChecked(child);
+                        setChecked(child, itemCheck);
                     });
                 }
             };
             // 当一级菜单改变的时候
             if (item.children) {
-                item.children.forEach(child => setChecked(child));
+                item.children.forEach(child => setChecked(child, itemChecked));
             }
             this.activeItem = item;
             this.$emit("handleSelect", this.option);
@@ -138,10 +133,10 @@ export default {
             } else {
                 this.activeItem.checked = true;
             }
+            this.$emit("handleSelect", this.option);
             this.disabeldAction(this.activeItem);
         },
         // 设置 disabled 值 values: 互斥的另一方数组， curItem 当前选中的值
-        // values 互斥的另一部分数组， excepValues 表示当前所属的数组
         setDisabled(exceptValues, curItem, values) {
             const { checked: curChecked, childrenValues, value: curValue, siblingValues } = curItem;
             this.checkArr = [];

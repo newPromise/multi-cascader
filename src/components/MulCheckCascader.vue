@@ -63,10 +63,10 @@ export default {
             activeItem: [],
             outputValue: [],
             optionDicts: [],
-            popoverStyle: {
-            },
             inputArrow: "el-icon-arrow-down",
-            popoverWidth: ""
+            popoverWidth: "",
+            // 展开之后的数组， 将每一个children 展开
+            flatOptions: []
         };
     },
     watch: {
@@ -80,6 +80,7 @@ export default {
     created() {
         this.initData();
         this.setOptionDicts(this.options);
+        this.toFlatOption(this.options);
     },
     methods: {
         whenPopoverHide() {
@@ -92,7 +93,6 @@ export default {
             this.setLevel();
             this.activeItem = this.options;
             const { width, height } = this;
-            this.popoverStyle = Object.assign({}, { width, height });
             const checkedValues = [];
             let childrenValues = [];
             const getChecked = (item) => {
@@ -119,6 +119,34 @@ export default {
             this.selectedValues = checkedValues;
             this.whenOutPut(this.selectedValues);
         },
+        getTypeOptions(values, outputType) {
+            const outputValues = [...values];
+            const finalOutputArr = [];
+            return this.flatOptions.reduce((pev, cur) => {
+                const { value: curVal } = cur;
+                if (outputType === "item") {
+                    if (outputValues.includes(curVal)) pev.push(cur);
+                } else {
+                    if (outputValues.includes(curVal) && cur[outputType]) pev.push(cur[outputType]);
+                }
+                return pev;
+            }, []);
+        },
+        toFlatOption(option) {
+            const getItems = (arr, cur) => {
+                const keys = Object.keys(cur);
+                const newObj = {};
+                keys.forEach(key => key !== "children" && (newObj[key] = cur[key]));
+                arr.push(newObj);
+                const curChild = cur.children;
+                if (curChild && curChild.length > 0) {
+                    return curChild.reduce((array, now) => getItems(array, now), arr);
+                } else {
+                    return arr;
+                }
+            };
+            this.flatOptions = option.reduce((arr, cur) => getItems(arr, cur) && arr, []);
+        },
         // 设置配置的字典
         setOptionDicts(options) {
             if (!Array.isArray(options)) {
@@ -135,8 +163,13 @@ export default {
             }
         },
         whenOutPut(value) {
-            this.outputValue = value;
-            this.$emit("on-selected", value);
+            // 根据选中的值数组 value 输出特定 outputType 类型
+            if (this.outputType !== "value") {
+                this.outputValue = this.getTypeOptions(value, this.outputType);
+            } else {
+                this.outputValue = value;
+            }
+            this.$emit("on-selected", this.outputValue);
         },
         // 设定层级
         setLevel() {
