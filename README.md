@@ -30,7 +30,7 @@ Vue.use(multiCascader);
 ## events
 
 | 事件名 | 描述 | 接受值 | 返回值 |
-| - | - | - | - | - |
+| - | - | - | - |
 | on-selected | 菜单选项选中时事件触发 | 由选择项的某一个字段组成的数组 | -- |
 
 ## attributes details
@@ -40,7 +40,7 @@ Vue.use(multiCascader);
 配置属性：
 
 | 属性名 | 描述 | 类型
-| - | - | - | - | - |
+| - | - | - |
 | value | 选项的值 | String or Number
 | label | 选项的名称 | String 
 | checked | 该选项是否被选中 | Boolean |
