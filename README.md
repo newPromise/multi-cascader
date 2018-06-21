@@ -15,6 +15,9 @@ import multiCascader from "multi-cascader";
 
 Vue.use(multiCascader);
 ```
+## 页面预览
+
+![](http://ov3b9jngp.bkt.clouddn.com/%E9%A2%84%E8%A7%88.png)
 
 ## attributes
 
@@ -111,7 +114,7 @@ thatPair: ["all"]
 
 * 基本的选项配置
 
-
+![](http://ov3b9jngp.bkt.clouddn.com/%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE.png)
 
 ```vue
 <multiCascader width="240px" height="220px" :options="configOptions" @on-selected="getSelected" :inputValue="configTips"></multiCascader>
@@ -166,7 +169,7 @@ console.log(this.selectGroups); // [{ label: "二级菜单"， value： "21", ch
 ```
 
 * 设置禁用选项对  
-![image](/uploads/19da4d0b2b2947b94d4d5c034773c728/image.png)
+![](http://ov3b9jngp.bkt.clouddn.com/%E7%A6%81%E7%94%A8%E5%AF%B9.png)
 
 ```vue
 <multiCascader width="240px" height="220px" :options="configOptions" @on-selected="getSelected" :inputValue="configTips" ></multiCascader>
@@ -207,7 +210,7 @@ configOptions: [{
 ```
 
 * 设置某一选项和其他之外的所有选择均互斥的效果  
-![image](/uploads/d5529bfaede88d65b0b1e66fdb78856f/image.png)
+![](http://ov3b9jngp.bkt.clouddn.com/%E4%BA%92%E6%96%A5%E6%95%88%E6%9E%9Call.png)
 
 ```javascript
 disabledPair: {
