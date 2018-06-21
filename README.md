@@ -18,8 +18,8 @@ Vue.use(multiCascader);
 
 ## attributes
 
-| 属性名 | 描述 | 类型 | 默认值 |
-| - | - | - | - | - |
+| 属性名 | 描述 | 类型 | 默认值 | 
+| - | - | - | - |
 | width | 菜单选择面板的宽度 | String | 220px |
 | height | 菜单选择面板的高度 | String | 240px |
 | options | 选择器菜单配置项 | Array | [] |
@@ -111,7 +111,7 @@ thatPair: ["all"]
 
 * 基本的选项配置
 
-![image](/uploads/5f7c395882e3e81fc8d35a17f7d4e697/image.png)
+
 
 ```vue
 <multiCascader width="240px" height="220px" :options="configOptions" @on-selected="getSelected" :inputValue="configTips"></multiCascader>
