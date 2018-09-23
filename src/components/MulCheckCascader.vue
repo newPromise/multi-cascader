@@ -1,6 +1,5 @@
 <template lang='html'>
     <div class='multil-cascader'>
-        <!-- <el-input/>/ -->
         <el-popover placement="top-start" popper-class="multi-cascader-popover" :visible-arrow="showArrow" trigger="click" @hide="whenPopoverHide" @show="whenPopoverShow">
             <muContent
                 :height="height"
@@ -224,5 +223,5 @@ export default {
         background-color: rgba(125,139,169,.1);
     }
 }
-// @import "~assets/css/variable";
+@import "~assets/css/variable";
 </style>

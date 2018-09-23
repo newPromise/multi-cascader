@@ -178,6 +178,61 @@ export default {
             if (thatPair.includes(item.value) || (thatPair.includes("all") && !thisPair.includes(item.value))) {
                 this.setDisabled(thatPair, item, thisPair);
             }
+            this.$emit("handleSelect", this.option);
+            this.disabeldAction(this.activeItem);
+        },
+        // 设置 disabled 值 values: 互斥的另一方数组， curItem 当前选中的值
+        setDisabled(exceptValues, curItem, values) {
+            const { checked: curChecked, childrenValues, value: curValue, siblingValues } = curItem;
+            this.checkArr = [];
+            if (values.includes("all")) {
+                if (siblingValues) {
+                    this.checkArr = new Array(siblingValues.length - exceptValues.length).fill(true);
+                }
+            } else {
+                this.checkArr = new Array(values.length).fill(true);
+            }
+            const toDisabled = (item) => {
+                const { value, checked } = item;
+                if (values.includes(value) || (values.includes("all") && !exceptValues.includes(value))) {
+                    if (siblingValues && siblingValues.includes(value)) {
+                        this.checkArr.push(checked);
+                        this.checkArr.shift();
+                    }
+                }
+                const itemChild = item.children;
+                if (itemChild && itemChild.length > 0) {
+                    itemChild.forEach(child => {
+                        toDisabled(child);
+                    });
+                }
+            };
+            this.option.forEach(child => {
+                toDisabled(child);
+            });
+            this.option.forEach(child => {
+                if (exceptValues.includes(child.value) || (exceptValues.includes("all") && !values.includes(child.value))) {
+                    child.disabled = this.checkArr.some(val => val === true);
+                }
+            });
+        },
+        // disabled action
+        // 根据选中的值进行设置是否可选
+        disabeldAction(item) {
+            const { thatPair, thisPair } = this.disabledPair;
+            if (!thatPair || !thisPair) {
+                return;
+            }
+            const pairs = [...thatPair, ...thisPair];
+            if (pairs.includes(item.value) || pairs.includes("all")) {
+                if (thisPair.includes(item.value) || (thisPair.includes("all") && !thatPair.includes(item.value))) {
+                    this.setDisabled(thatPair, item, thisPair);
+                    return;
+                }
+                if (thatPair.includes(item.value) || (thatPair.includes("all") && !thisPair.includes(item.value))) {
+                    this.setDisabled(thisPair, item, thatPair);
+                }
+            }
         },
         showNextLevel(item) {
             if (item.disabled) return;
